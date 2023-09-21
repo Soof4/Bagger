@@ -27,14 +27,17 @@ namespace Bagger {
         public List<int> GetBagList(string name) {
             using var reader = _db.QueryReader("SELECT * FROM Players WHERE Name = @0", name);
             
-            
             while (reader.Read()) {
+                /*
                 try {
+                */
                     return reader.Get<string>("BagList").Split(',').Select(int.Parse).ToList();
+            /*    
                 }
                 catch (FormatException) {
-                    return new();
+                    return new() { 0 };
                 }
+                */
             }
             throw new NullReferenceException();
         }
@@ -48,7 +51,7 @@ namespace Bagger {
         }
 
         public bool IsPlayerInDb(string name) {
-            return _db.Query("SELECT COUNT(*) FROM Players WHERE Name = @0", name) > 0;
+            return _db.QueryScalar<int>("SELECT COUNT(*) FROM Players WHERE Name = @0", name) > 0;
         }
     }
 }

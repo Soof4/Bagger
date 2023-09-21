@@ -11,24 +11,22 @@ namespace Bagger {
         public Bagger(Main game) : base(game) {
         }
         public override string Name => "Bagger";
-        public override Version Version => new Version(1, 0, 0);
+        public override Version Version => new Version(1, 0, 1);
         public override string Author => "Soofa";
         public override string Description => "Gives people boss bags if they missed the fight.";
 
-        private IDbConnection db;
-        public static DatabaseManager dbManager;
+        private static IDbConnection db = new SqliteConnection("Data Source=" + Path.Combine(TShock.SavePath, "Bagger.sqlite"));
+        public static DatabaseManager dbManager = new(db);
 
         private List<int> downedBosses = new();
         public override void Initialize() {
-            db = new SqliteConnection("Data Source=" + Path.Combine(TShock.SavePath, "Bagger.sqlite"));
-            dbManager = new(db);
+            ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
+            ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
 
             Commands.ChatCommands.Add(new Command("bagger.getbags", GetBagsCmd, "getbags", "gb") { 
                 AllowServer = false,
                 HelpText = "Get bags for the bosses that you've missed."
             });
-            ServerApi.Hooks.GamePostInitialize.Register(this, OnGamePostInitialize);
-            ServerApi.Hooks.NpcKilled.Register(this, OnNpcKilled);
         }
 
         private void OnGamePostInitialize(EventArgs args) {
@@ -68,11 +66,16 @@ namespace Bagger {
 
         private void GetBagsCmd(CommandArgs args) {
             List<int> plrBagList = new();
-            try {
+
+            if (dbManager.IsPlayerInDb(args.Player.Name)) {
                 plrBagList = dbManager.GetBagList(args.Player.Name);
             }
-            catch (NullReferenceException) {
+            else {
                 dbManager.InsertPlayer(args.Player.Name);
+            }
+
+            if (downedBosses.Count == 0) {
+                return;
             }
 
             foreach (int bagId in downedBosses) {
@@ -80,7 +83,7 @@ namespace Bagger {
                     args.Player.GiveItem(bagId, 1);
                 }
             }
-
+            
             dbManager.SavePlayer(args.Player.Name, string.Join(",", downedBosses));
         }
 
