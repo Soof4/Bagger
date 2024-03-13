@@ -1,4 +1,4 @@
-# PlaytimeRewards
+# Bagger
 A TShock plugin that let's players get bags for the bosses they've missed. These bosses are:
 * King Slime
 * Eye of Cthulhu
