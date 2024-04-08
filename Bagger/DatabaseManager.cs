@@ -1,56 +1,50 @@
 ﻿using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TShockAPI;
 using TShockAPI.DB;
 
-namespace Bagger {
-    public class DatabaseManager {
+namespace Bagger
+{
+    public class DatabaseManager
+    {
 
         private IDbConnection _db;
 
-        public DatabaseManager(IDbConnection db) {
+        public DatabaseManager(IDbConnection db)
+        {
             _db = db;
 
             var sqlCreator = new SqlTableCreator(db, new SqliteQueryCreator());
 
             sqlCreator.EnsureTableStructure(new SqlTable("Players",
                 new SqlColumn("Name", MySqlDbType.String) { Primary = true, Unique = true },
-                new SqlColumn("BagList", MySqlDbType.Text)));
+                new SqlColumn("ClaimedBossesMask", MySqlDbType.Int32)));
         }
 
         /// <exception cref="NullReferenceException"></exception>
-        public List<int> GetBagList(string name) {
+        public int GetClaimedBossMask(string name)
+        {
             using var reader = _db.QueryReader("SELECT * FROM Players WHERE Name = @0", name);
-            
-            while (reader.Read()) {
-                /*
-                try {
-                */
-                    return reader.Get<string>("BagList").Split(',').Select(int.Parse).ToList();
-            /*    
-                }
-                catch (FormatException) {
-                    return new() { 0 };
-                }
-                */
+
+            while (reader.Read())
+            {
+                return reader.Get<int>("ClaimedBossesMask");
             }
             throw new NullReferenceException();
         }
 
-        public bool InsertPlayer(string name, string firstBagId = "0") {
-            return _db.Query("INSERT INTO Players (Name, BagList) VALUES (@0, @1)", name, firstBagId) != 0;
+        public bool InsertPlayer(string name, int mask = 0)
+        {
+            return _db.Query("INSERT INTO Players (Name, ClaimedBossesMask) VALUES (@0, @1)", name, mask) != 0;
         }
 
-        public bool SavePlayer(string name, string bagList) {
-            return _db.Query("UPDATE Players SET BagList = @0 WHERE Name = @1", bagList, name) != 0;
+        public bool SavePlayer(string name, int mask)
+        {
+            return _db.Query("UPDATE Players SET ClaimedBossesMask = @0 WHERE Name = @1", mask, name) != 0;
         }
 
-        public bool IsPlayerInDb(string name) {
+        public bool IsPlayerInDb(string name)
+        {
             return _db.QueryScalar<int>("SELECT COUNT(*) FROM Players WHERE Name = @0", name) > 0;
         }
     }
