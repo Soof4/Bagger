@@ -15,7 +15,7 @@ namespace Bagger
         {
         }
         public override string Name => "Bagger";
-        public override Version Version => new Version(1, 1, 0);
+        public override Version Version => new Version(1, 1, 1);
         public override string Author => "Soofa";
         public override string Description => "Gives people boss bags if they missed the fight.";
 
@@ -246,6 +246,7 @@ namespace Bagger
         private static void OnReload(ReloadEventArgs args)
         {
             Config = Config.Reload();
+            args.Player.SendSuccessMessage("Bagger has been reloaded.");
         }
 
         protected override void Dispose(bool disposing)

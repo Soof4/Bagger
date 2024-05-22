@@ -26,7 +26,7 @@ namespace Bagger
         public DropInfo GolemDrop = new DropInfo(ItemID.GolemBossBag, 1);
         public DropInfo DukeFishronDrop = new DropInfo(ItemID.FishronBossBag, 1);
         public DropInfo EmpressOfLight = new DropInfo(ItemID.FairyQueenBossBag, 1);
-        public DropInfo LunaticCultistDrop = new DropInfo(ItemID.CultistBossBag, -1);
+        public DropInfo LunaticCultistDrop = new DropInfo(ItemID.CultistBossBag, 1);
         public DropInfo MoonlordDrop = new DropInfo(ItemID.MoonLordBossBag, 1);
 
         public static Config Reload()
