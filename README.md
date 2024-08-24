@@ -1,6 +1,8 @@
 # Bagger
 A TShock plugin that let's players get bags for the bosses they've missed.
 
+If you want to read this in another language: [Spanish](https://github.com/Soof4/Bagger/blob/main/README_SPANISH.md)
+
 ## Permissions and Commands
 |Permissions  | Commands    |
 |-------------|-------------|
