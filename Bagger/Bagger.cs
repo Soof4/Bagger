@@ -15,7 +15,7 @@ namespace Bagger
         {
         }
         public override string Name => "Bagger";
-        public override Version Version => new Version(1, 1, 1);
+        public override Version Version => new Version(1, 2, 0);
         public override string Author => "Soofa";
         public override string Description => "Gives people boss bags if they missed the fight.";
 
@@ -73,16 +73,16 @@ namespace Bagger
             {
                 if (plr != null && plr.Active)
                 {
-                    if (dbManager.IsPlayerInDb(plr.Name))
+                    if (dbManager.IsPlayerInDb(plr.UUID))
                     {
-                        int claimedMask = dbManager.GetClaimedBossMask(plr.Name);
+                        int claimedMask = dbManager.GetClaimedBossMask(plr.UUID);
                         claimedMask = AddToTheMask(claimedMask, args.npc.type);
 
-                        dbManager.SavePlayer(plr.Name, claimedMask);
+                        dbManager.SavePlayer(plr.UUID, claimedMask);
                     }
                     else
                     {
-                        dbManager.InsertPlayer(plr.Name, AddToTheMask(0, args.npc.type));
+                        dbManager.InsertPlayer(plr.UUID, AddToTheMask(0, args.npc.type));
                     }
                 }
             }
@@ -93,7 +93,7 @@ namespace Bagger
             var unlockState = Main.BestiaryDB.FindEntryByNPCID(type).UIInfoProvider.GetEntryUICollectionInfo().UnlockState;
             return unlockState == Terraria.GameContent.Bestiary.BestiaryEntryUnlockState.CanShowDropsWithDropRates_4;
         }
-        
+
         private int AddToTheMask(int mask, int type)
         {
             return type switch
@@ -123,13 +123,13 @@ namespace Bagger
         private void GetBagsCmd(CommandArgs args)
         {
             int claimMask = 0;
-            if (dbManager.IsPlayerInDb(args.Player.Name))
+            if (dbManager.IsPlayerInDb(args.Player.UUID))
             {
-                claimMask = dbManager.GetClaimedBossMask(args.Player.Name);
+                claimMask = dbManager.GetClaimedBossMask(args.Player.UUID);
             }
             else
             {
-                dbManager.InsertPlayer(args.Player.Name);
+                dbManager.InsertPlayer(args.Player.UUID);
             }
 
             if ((claimMask & 1) != 1 && DownedBosses.Contains(NPCID.KingSlime))
@@ -240,7 +240,7 @@ namespace Bagger
                 args.Player.GiveItem(Config.MoonlordDrop.ItemID, Config.MoonlordDrop.Stack);
             }
 
-            dbManager.SavePlayer(args.Player.Name, claimMask);
+            dbManager.SavePlayer(args.Player.UUID, claimMask);
         }
 
         private static void OnReload(ReloadEventArgs args)

@@ -17,14 +17,15 @@ namespace Bagger
             var sqlCreator = new SqlTableCreator(db, new SqliteQueryCreator());
 
             sqlCreator.EnsureTableStructure(new SqlTable("Players",
-                new SqlColumn("Name", MySqlDbType.String) { Primary = true, Unique = true },
+                new SqlColumn("PlayerID", MySqlDbType.Int32) { Primary = true, AutoIncrement = true },
+                new SqlColumn("UUID", MySqlDbType.String) { Unique = true },
                 new SqlColumn("ClaimedBossesMask", MySqlDbType.Int32)));
         }
 
         /// <exception cref="NullReferenceException"></exception>
-        public int GetClaimedBossMask(string name)
+        public int GetClaimedBossMask(string uuid)
         {
-            using var reader = _db.QueryReader("SELECT * FROM Players WHERE Name = @0", name);
+            using var reader = _db.QueryReader("SELECT * FROM Players WHERE UUID = @0", uuid);
 
             while (reader.Read())
             {
@@ -33,19 +34,19 @@ namespace Bagger
             throw new NullReferenceException();
         }
 
-        public bool InsertPlayer(string name, int mask = 0)
+        public bool InsertPlayer(string uuid, int mask = 0)
         {
-            return _db.Query("INSERT INTO Players (Name, ClaimedBossesMask) VALUES (@0, @1)", name, mask) != 0;
+            return _db.Query("INSERT INTO Players (UUID, ClaimedBossesMask) VALUES (@0, @1)", uuid, mask) != 0;
         }
 
-        public bool SavePlayer(string name, int mask)
+        public bool SavePlayer(string uuid, int mask)
         {
-            return _db.Query("UPDATE Players SET ClaimedBossesMask = @0 WHERE Name = @1", mask, name) != 0;
+            return _db.Query("UPDATE Players SET ClaimedBossesMask = @0 WHERE UUID = @1", mask, uuid) != 0;
         }
 
-        public bool IsPlayerInDb(string name)
+        public bool IsPlayerInDb(string uuid)
         {
-            return _db.QueryScalar<int>("SELECT COUNT(*) FROM Players WHERE Name = @0", name) > 0;
+            return _db.QueryScalar<int>("SELECT COUNT(*) FROM Players WHERE UUID = @0", uuid) > 0;
         }
     }
 }
